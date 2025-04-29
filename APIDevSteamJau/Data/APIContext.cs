@@ -16,8 +16,8 @@ namespace APIDevSteamJau.Data
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<JogoCategoria> JogosCategorias { get; set; }
 
-        public DbSet<Carrinho> Carrinho { get; set; }
-        public DbSet<ItemCarrinho> ItemCarrinho { get; set; }
+        public DbSet<Carrinho> Carrinhos { get; set; }
+        public DbSet<ItemCarrinho> ItemCarrinhos { get; set; }
 
 
 

@@ -25,14 +25,14 @@ namespace APIDevSteamJau.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemCarrinho>>> GetItemCarrinho()
         {
-            return await _context.ItemCarrinho.ToListAsync();
+            return await _context.ItemCarrinhos.ToListAsync();
         }
 
         // GET: api/ItemCarrinhos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemCarrinho>> GetItemCarrinho(Guid id)
         {
-            var itemCarrinho = await _context.ItemCarrinho.FindAsync(id);
+            var itemCarrinho = await _context.ItemCarrinhos.FindAsync(id);
 
             if (itemCarrinho == null)
             {
@@ -79,7 +79,7 @@ namespace APIDevSteamJau.Controllers
         public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho)
         {
             //Verifica se o carrinho existe
-            var carrinho = await _context.Carrinho.FindAsync(itemCarrinho.CarrinhoId);
+            var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
             if (carrinho == null)
             {
                 return NotFound("Carrinho não encontrado.");
@@ -99,7 +99,7 @@ namespace APIDevSteamJau.Controllers
             carrinho.ValorTotal += itemCarrinho.ValorTotal;
 
 
-            _context.ItemCarrinho.Add(itemCarrinho);
+            _context.ItemCarrinhos.Add(itemCarrinho);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetItemCarrinho", new { id = itemCarrinho.ItemCarrinhoId }, itemCarrinho);
@@ -109,13 +109,30 @@ namespace APIDevSteamJau.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItemCarrinho(Guid id)
         {
-            var itemCarrinho = await _context.ItemCarrinho.FindAsync(id);
+            var itemCarrinho = await _context.ItemCarrinhos.FindAsync(id);
             if (itemCarrinho == null)
             {
                 return NotFound();
             }
 
-            _context.ItemCarrinho.Remove(itemCarrinho);
+            //Verificar se o carrinho existe 
+            var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
+            if (carrinho == null)
+            {
+                return NotFound("Carrinho não encontrado.");
+            }
+
+
+            //subtrair o valor total do carrinho
+            carrinho.ValorTotal -= itemCarrinho.ValorTotal;
+
+            //verifica se o valor total do carrinho é menor que 0
+            if (carrinho.ValorTotal < 0)
+            {
+                carrinho.ValorTotal = 0;
+            }
+
+            _context.ItemCarrinhos.Remove(itemCarrinho);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -123,7 +140,7 @@ namespace APIDevSteamJau.Controllers
 
         private bool ItemCarrinhoExists(Guid id)
         {
-            return _context.ItemCarrinho.Any(e => e.ItemCarrinhoId == id);
+            return _context.ItemCarrinhos.Any(e => e.ItemCarrinhoId == id);
         }
     }
 }
